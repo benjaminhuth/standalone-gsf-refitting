@@ -7,7 +7,7 @@ rule simulate_electrons:
         "{pt}GeV/particles.root",
         "{pt}GeV/hits.root",
     params:
-        n_events=10,
+        n_events=config["events"],
         p_min=lambda wildcards: float(wildcards.pt),
         p_max=lambda wildcards: float(wildcards.pt),
         abs_eta=3,
@@ -32,5 +32,9 @@ rule refit:
 rule all:
     default_target: True
     input:
+        "1GeV/tracksummary_kalman.root",
+        "1GeV/tracksummary_gsf_refit.root",
         "10GeV/tracksummary_kalman.root",
         "10GeV/tracksummary_gsf_refit.root",
+        "100GeV/tracksummary_kalman.root",
+        "100GeV/tracksummary_gsf_refit.root",

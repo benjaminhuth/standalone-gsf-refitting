@@ -5,8 +5,15 @@ import acts.examples
 
 from utils import run_fitting
 
+bha = acts.examples.AtlasBetheHeitlerApprox.loadFromFiles(
+    lowParametersPath="../config/GeantSim_LT01_cdf_nC6_O5.par",
+    highParametersPath="../config/GeantSim_GT01_cdf_nC6_O5.par",
+    lowLimit=0.1,
+    highLimit=0.3,
+)
+
 gsfOptions = {
-    "betheHeitlerApprox": acts.examples.AtlasBetheHeitlerApprox.makeDefault(),
+    "betheHeitlerApprox": bha,
     "maxComponents": 12,
     "componentMergeMethod": acts.examples.ComponentMergeMethod.maxWeight,
     "mixtureReductionAlgorithm": acts.examples.MixtureReductionAlgorithm.KLDistance,

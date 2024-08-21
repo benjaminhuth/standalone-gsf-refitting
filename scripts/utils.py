@@ -16,8 +16,12 @@ acts_root = Path(os.environ["ACTS_ROOT"])
 assert acts_root.exists()
 
 def setup():
+    mdecorator = acts.examples.RootMaterialDecorator(
+        fileName=str(acts_root / "thirdparty/OpenDataDetector/data/odd-material-maps.root"),
+        level=acts.logging.WARNING,
+    )
     detector, trackingGeometry, decorators = getOpenDataDetector(
-        logLevel=acts.logging.WARNING
+        mdecorator, logLevel=acts.logging.WARNING
     )
 
     field = acts.ConstantBField(acts.Vector3(0.0, 0.0, 2 * u.T))
@@ -32,13 +36,14 @@ def run_fitting(
     inputParticles,
     inputHits,
     n_events=None,
+    n_jobs=-1,
 ):
     detector, trackingGeometry, field, rnd = setup()
     defaultLogLevel=acts.logging.INFO
 
     s = acts.examples.Sequencer(
         events=n_events,
-        numThreads=-1,
+        numThreads=n_jobs,
         outputDir=outputDir,
         trackFpes=False,
         logLevel=defaultLogLevel,
@@ -46,7 +51,7 @@ def run_fitting(
 
     s.addReader(
         acts.examples.RootParticleReader(
-            level=defaultLogLevel,
+            level=acts.logging.FATAL, # Investigate errors
             outputParticles="particles_initial",
             filePath=inputParticles,
         )
@@ -60,7 +65,9 @@ def run_fitting(
         )
     )
 
-    digiConfigFile = acts_root / "Examples/Algorithms/Digitization/share/odd-digi-geometric-config.json"
+    #digiConfigFile = acts_root / "Examples/Algorithms/Digitization/share/odd-digi-geometric-config.json"
+    #digiConfigFile = acts_root / "Examples/Algorithms/Digitization/share/odd-digi-smearing-config-notime.json"
+    digiConfigFile = acts_root / "thirdparty/OpenDataDetector/config/odd-digi-smearing-config-notime.json"
     assert os.path.exists(digiConfigFile)
     addDigitization(
         s=s,

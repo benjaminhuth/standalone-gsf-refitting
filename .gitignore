@@ -3,3 +3,5 @@ acts
 tmp
 *.root
 run_*.sh
+__pycache__
+itk-gen1

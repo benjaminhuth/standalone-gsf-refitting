@@ -34,4 +34,5 @@ run_fitting(
     outputDir=outputDir,
     inputParticles=particles,
     inputHits=hits,
+    n_jobs=1,
 )
