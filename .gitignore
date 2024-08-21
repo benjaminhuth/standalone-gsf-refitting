@@ -5,3 +5,5 @@ tmp
 run_*.sh
 __pycache__
 itk-gen1
+venv-gsf
+setup_deps.sh

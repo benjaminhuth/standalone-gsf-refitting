@@ -1,28 +1,52 @@
 from pathlib import Path
 import os
+import sys
 
 import numpy as np
 
 import acts
 import acts.examples
 
-from acts.examples.simulation import *
-from acts.examples.reconstruction import *
-from acts.examples.odd import getOpenDataDetector
-
 u = acts.UnitConstants
 
 acts_root = Path(os.environ["ACTS_ROOT"])
 assert acts_root.exists()
 
-def setup():
-    mdecorator = acts.examples.RootMaterialDecorator(
-        fileName=str(acts_root / "thirdparty/OpenDataDetector/data/odd-material-maps.root"),
-        level=acts.logging.WARNING,
-    )
-    detector, trackingGeometry, decorators = getOpenDataDetector(
-        mdecorator, logLevel=acts.logging.WARNING
-    )
+
+def setup(snakemake):
+    if snakemake.config["detector"] == "odd":
+        from acts.examples.odd import getOpenDataDetector
+
+        mdecorator = acts.examples.RootMaterialDecorator(
+            fileName=str(acts_root / "thirdparty/OpenDataDetector/data/odd-material-maps.root"),
+            level=acts.logging.WARNING,
+        )
+        detector, trackingGeometry, decorators = getOpenDataDetector(
+            mdecorator, logLevel=acts.logging.WARNING
+        )
+    elif snakemake.config["detector"] == "itk":
+        from acts.examples.geant4.geomodel import GeoModelDetectorConstructionFactory
+
+        itk_root = Path(os.environ["ITK_ROOT"])
+        assert itk_root.exists()
+
+        sys.path.append(str(itk_root / "scripts"))
+        from itk_from_geomodel_gen1 import ItkBuilder
+
+        itkBuilder = ItkBuilder(
+            pixelData=itk_root / "ITKPixels.db",
+            stripData=itk_root / "ITKStrips.db",
+        )
+        mdecorator = acts.examples.RootMaterialDecorator(
+            fileName=str(itk_root / "itk_material_map.root"),
+            level=acts.logging.WARNING,
+        )
+        #mdecorator = None
+        trackingGeometry = itkBuilder.finalize(mdecorator)
+
+        detector = acts.geomodel.readFromDb(str(itk_root / "ITKFull.db"))
+    else:
+        raise RuntimeError("invalid detector")
 
     field = acts.ConstantBField(acts.Vector3(0.0, 0.0, 2 * u.T))
     rnd = acts.examples.RandomNumbers(seed=42)
@@ -38,6 +62,9 @@ def run_fitting(
     n_events=None,
     n_jobs=-1,
 ):
+    from acts.examples.simulation import addDigitization
+    from acts.examples.reconstruction import addSpacepointMaking
+
     detector, trackingGeometry, field, rnd = setup()
     defaultLogLevel=acts.logging.INFO
 

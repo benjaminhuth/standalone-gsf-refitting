@@ -26,7 +26,6 @@ def run_geant4_sim(args, config):
         addGeant4,
         ParticleSelectorConfig,
     )
-    from acts.examples.odd import getOpenDataDetector
 
     from utils import setup
 
@@ -34,7 +33,7 @@ def run_geant4_sim(args, config):
 
     defaultLogLevel = acts.logging.ERROR
 
-    detector, trackingGeometry, field, rnd = setup()
+    detector, trackingGeometry, field, rnd = setup(snakemake)
     outputDir.mkdir(exist_ok=True, parents=True)
     # (outputDir / "csv").mkdir(exist_ok=True, parents=True)
 
@@ -92,7 +91,7 @@ def run_geant4_sim(args, config):
         ),
         outputDirRoot=outputDir,
         rnd=rnd,
-        killVolume=acts.Volume.makeCylinderVolume(r=1.1 * u.m, halfZ=3.0 * u.m),
+        killVolume=trackingGeometry.worldVolume,
         killAfterTime=25 * u.ns,
         logLevel=defaultLogLevel,
     )

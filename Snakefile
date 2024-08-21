@@ -32,9 +32,9 @@ rule refit:
 rule all:
     default_target: True
     input:
-        "1GeV/tracksummary_kalman.root",
-        "1GeV/tracksummary_gsf_refit.root",
+        #"1GeV/tracksummary_kalman.root",
+        #"1GeV/tracksummary_gsf_refit.root",
         "10GeV/tracksummary_kalman.root",
         "10GeV/tracksummary_gsf_refit.root",
-        "100GeV/tracksummary_kalman.root",
-        "100GeV/tracksummary_gsf_refit.root",
+        #"100GeV/tracksummary_kalman.root",
+        #"100GeV/tracksummary_gsf_refit.root",
